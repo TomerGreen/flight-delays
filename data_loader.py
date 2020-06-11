@@ -47,5 +47,3 @@ def load_data(path):
 
     return df, y_delay, y_factor
 
-
-df = load_data("../train_data.csv")[0]
