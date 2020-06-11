@@ -15,9 +15,10 @@ def preprocess_training_data(x, delay, y):
     :param y: returned from load_data
     :return: (x_train, x_val, y_train, y_val)
     """
+    # TODO - augment delay data
+    # TODO - add option to predict with NoDelay
     x, y = x[delay > 0], y[delay > 0]
     x_train, x_val, y_train, y_val = train_test_split(x, y, test_size=0.2, random_state=21)
-    print(x_val.shape)
     scaler = StandardScaler()
     x_train = scaler.fit_transform(x_train)
     x_val = scaler.transform(x_val)
@@ -43,7 +44,7 @@ def evaluate_model(model, x_val, y_val):
 
 if __name__ == '__main__':
     print("Loading data")
-    x, delay, y = load_data('flight_data/train_data.csv')
+    x, delay, y = load_data('flight_data/train_data.csv', 'all_weather_data/all_weather_data.csv', max_rows=1000000)
     x_train, x_val, y_train, y_val = preprocess_training_data(x, delay, y)
     print('Fitting model')
     classifier = train_model(x_train, y_train, max_rows=10000000)
