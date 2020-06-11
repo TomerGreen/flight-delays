@@ -62,7 +62,11 @@ def load_data(path,max_rows=500000):
 
 
 def load_data_test(path):
-    columns_names= joblib.load('columns_names.pkl')
+    '''
+    :param path:  path of data file
+    :return: df with the right features as in the train data
+    '''
+    columns_names = joblib.load('columns_names.pkl')
     df = preprocessing(pd.read_csv(path))
     df= df.reindex(columns_names, axis=1,fill_value=0)
     return df
