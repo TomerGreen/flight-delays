@@ -1,22 +1,15 @@
+from typing import List, Any
 import numpy as np
 import pandas as pd
 from sklearn.linear_model import LinearRegression
+import joblib
 
 
-def load_data(path):
+def preprocessing(df):
     '''
-
-    :param path: path of data file
-    :return: df with the right features (without the response vector,
-             y_delay = column of delay time
-             y_factor = column of Delay Factor
-
+    :param df:
+    :return:
     '''
-    df = pd.read_csv(path)
-
-    y_delay = df['ArrDelay']
-    y_factor = df['DelayFactor']
-    df = df.drop(['DelayFactor', 'ArrDelay'], axis=1)
 
     df = df.drop(['DayOfWeek'], axis=1).join(pd.get_dummies(df.DayOfWeek, prefix='DayOfWeek_'))
 
@@ -43,5 +36,37 @@ def load_data(path):
     df = df.drop(['Tail_Number', 'Flight_Number_Reporting_Airline', 'OriginCityName', 'OriginState',
                   'DestCityName', 'DestState'], axis=1)
 
+    return df
+
+def load_data(path,max_rows=500000):
+    '''
+    :param path: path of data file
+    :param max_rows: limit to number of loaded rows.
+    :return: df with the right features (without the response vector,
+             y_delay = column of delay time
+             y_factor = column of Delay Factor
+    '''
+
+    df = preprocessing(pd.read_csv(path))
+    df = df[:max_rows]
+
+    y_delay = df['ArrDelay']
+    y_factor = df['DelayFactor']
+    df = df.drop(['DelayFactor', 'ArrDelay'], axis=1)
+
+    columns_names = df.columns.tolist()
+    joblib.dump(columns_names, 'columns_names.pkl')
+
     return df, y_delay, y_factor
+
+
+def load_data_test(path):
+    '''
+    :param path:  path of data file
+    :return: df with the right features as in the train data
+    '''
+    columns_names = joblib.load('columns_names.pkl')
+    df = preprocessing(pd.read_csv(path))
+    df= df.reindex(columns_names, axis=1,fill_value=0)
+    return df
 
