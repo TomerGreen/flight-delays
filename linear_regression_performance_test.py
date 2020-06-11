@@ -7,8 +7,9 @@ import numpy as np
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_squared_error
 import joblib
-
+from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import GridSearchCV
+from sklearn.metrics import mean_squared_error, make_scorer
 
 import data_loader
 
@@ -33,31 +34,45 @@ def calculate_mse(y, y_hat):
     return math.sqrt(mean_squared_error(y, y_hat))
 
 
-X, y_delay, y_factor = data_loader.load_data("../train_data.csv")
-# X = np.array(X)
-#y_delay = np.array(y_delay)
+X, y_delay, y_factor = data_loader.load_data("../train_data.csv",200000)
 
-y_delay_hat = predict_linear(X,y_delay)
-err = calculate_mse(y_delay, y_delay_hat)
 
 def ridge_test(X, y):
     ridge = Ridge()
-    params = {"alpha":[1e-8, 1e-4, 1e-3, 1e-2, 1, 5, 10, 20]}
-    ridge_regressor = GridSearchCV(ridge, params, scoring='r2', cv=5)
+    params = {"alpha": [0, 1e-10, 1e-8, 1e-4, 1e-3, 1e-2, 1, 2, 5, 10, 15, 20, 30, 100, 1e15]}
+    mse = make_scorer(mean_squared_error, greater_is_better=False)
+    ridge_regressor = GridSearchCV(ridge, params, scoring=mse, cv=2)
     ridge_regressor.fit(X, y)
     print("ridge test")
     print(ridge_regressor.best_params_)
     print(ridge_regressor.best_score_)
+    print(ridge_regressor.best_estimator_)
 
 def lasso_test(X, y):
     lasso = Lasso()
-    params = {"alpha":[1e-8, 1e-4, 1e-3, 1e-2, 1, 5, 10, 20]}
-    lasso_regressor = GridSearchCV(lasso, params, scoring='r2', cv=5)
+    params = {"alpha": [0, 1e-10, 1e-8, 1e-4, 1e-3, 1e-2, 1, 2, 5, 10, 15, 20, 30, 100, 1e15]}
+    mse = make_scorer(mean_squared_error, greater_is_better=False)
+    lasso_regressor = GridSearchCV(lasso, params, scoring=mse, cv=2)
     lasso_regressor.fit(X, y)
     print("lasso test")
     print(lasso_regressor.best_params_)
     print(lasso_regressor.best_score_)
+    print(lasso_regressor.best_estimator_)
 
-print("y_delay_hat ", y_delay_hat)
-print(err)
 
+def scalling(X):
+    scaler = StandardScaler()
+    X = scaler.fit_transform(X)
+    return X
+
+X, y_delay, y_factor = data_loader.load_data("../train_data.csv", 5000)
+X = scalling(X)
+ridge_test(X, y_delay)
+lasso_test(X, y_delay)
+
+# x_train = scaler.fit_transform(x_train)
+# x_val = scaler.transform(x_val)
+#
+#
+# print(ridge_test(X, y_delay))
+# print(lasso_test(X, y_delay))
