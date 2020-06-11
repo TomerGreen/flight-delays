@@ -8,21 +8,6 @@ from sklearn.metrics import accuracy_score
 from sklearn.model_selection import GridSearchCV
 
 
-def parse_hour(time_str):
-    return int(time_str/100)
-
-
-# def load_data(data_path):
-#     data = pd.read_csv(data_path)
-#     data = data[['DayOfWeek', 'Reporting_Airline', 'Origin', 'Dest', 'Distance', 'CRSDepTime', 'ArrDelay',
-#                  'DelayFactor']]
-#     data['CRSDepTime'] = data['CRSDepTime'].apply(parse_hour)
-#     data = data[data['ArrDelay'] > 0]
-#     x = data.drop(columns=['DelayFactor'])
-#     y = data['DelayFactor']
-#     return x, y
-
-
 def preprocess_training_data(x, delay, y):
     """
     Filters, splits and scales loaded data to be used in training and evaluation. Also saves the scaler.
@@ -32,8 +17,8 @@ def preprocess_training_data(x, delay, y):
     :return: (x_train, x_val, y_train, y_val)
     """
     x, y = x[delay > 0], y[delay > 0]
-    print("Data loaded")
     x_train, x_val, y_train, y_val = train_test_split(x, y, test_size=0.2, random_state=21)
+    print(x_val.shape)
     scaler = StandardScaler()
     x_train = scaler.fit_transform(x_train)
     x_val = scaler.transform(x_val)
@@ -47,7 +32,6 @@ def train_model(x_train, y_train, max_rows=1000000):
     """
     x_train, y_train = x_train[:max_rows], y_train[:max_rows]
     classifier = RandomForestClassifier(verbose=2)
-    print('Fitting model')
     classifier.fit(x_train, y_train)
     return classifier
 
@@ -75,11 +59,15 @@ def get_bestF(x_train, y_train, max_rows = int(1e5)):
     return bestF
 
 if __name__ == '__main__':
+    print("Loading data")
     x, delay, y = load_data('flight_data/train_data.csv')
     x_train, x_val, y_train, y_val = preprocess_training_data(x, delay, y)
+
     # classifier = train_model(x_train, y_train, max_rows=int(1e3))
     bestF = get_bestF(x_train, y_train, max_rows=int(1e3))
     classifier = bestF.best_estimator_
     joblib.dump(classifier, 'classifierBestF1.pkl',compress=9)
+    print('Fitting model')
+
     evaluate_model(classifier, x_val, y_val)
 
