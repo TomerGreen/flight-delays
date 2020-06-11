@@ -60,7 +60,6 @@ def load_data(path,max_rows=500000):
     return df, y_delay, y_factor
 
 
-
 def load_data_test(path):
     '''
     :param path:  path of data file
