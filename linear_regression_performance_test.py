@@ -3,6 +3,8 @@ import numpy as np
 import pandas as pd
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_squared_error
+import joblib
+
 
 import data_loader
 
@@ -14,6 +16,8 @@ def predict_linear(X,y):
     :return: prediction of y
     """
     reg = LinearRegression().fit(X, y)
+    joblib.dump(reg, 'reg.pkl', compress=0)
+
     return reg.predict(X)
 
 def calculate_mse(y, y_hat):

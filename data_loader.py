@@ -3,9 +3,9 @@ import pandas as pd
 from sklearn.linear_model import LinearRegression
 
 
-def load_data(path):
+def load_data(path,isWithY=True):
     '''
-
+    :param isWithY: bool, if true parses y cols
     :param path: path of data file
     :return: df with the right features (without the response vector,
              y_delay = column of delay time
@@ -13,10 +13,10 @@ def load_data(path):
 
     '''
     df = pd.read_csv(path)
-
-    y_delay = df['ArrDelay']
-    y_factor = df['DelayFactor']
-    df = df.drop(['DelayFactor', 'ArrDelay'], axis=1)
+    if isWithY:
+        y_delay = df['ArrDelay']
+        y_factor = df['DelayFactor']
+        df = df.drop(['DelayFactor', 'ArrDelay'], axis=1)
 
     df = df.drop(['DayOfWeek'], axis=1).join(pd.get_dummies(df.DayOfWeek, prefix='DayOfWeek_'))
 
@@ -43,5 +43,8 @@ def load_data(path):
     df = df.drop(['Tail_Number', 'Flight_Number_Reporting_Airline', 'OriginCityName', 'OriginState',
                   'DestCityName', 'DestState'], axis=1)
 
-    return df, y_delay, y_factor
+    if isWithY:
+        return df, y_delay, y_factor
+    else:
+        return df
 
