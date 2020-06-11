@@ -24,7 +24,7 @@ class FlightPredictor:
         """
 
         self.class_model = joblib.load('203552823/task1/src/classifier.pkl')
-        self.reg_model = joblib.load('203552823/task1/src/reg2.pkl')
+        self.reg_model = joblib.load('203552823/task1/src/lasso_reg2_scaled.pkl')
         self.path_to_weather = path_to_weather
         self.weather_means_dict = joblib.load('203552823/task1/src/mean_weather_dict.pkl')
 
