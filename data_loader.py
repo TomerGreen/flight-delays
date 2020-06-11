@@ -3,16 +3,18 @@ import pandas as pd
 from sklearn.linear_model import LinearRegression
 
 
-def load_data(path):
+def load_data(path, max_rows=1000000):
     '''
 
     :param path: path of data file
+    :param max_rows: limit to number of loaded rows.
     :return: df with the right features (without the response vector,
              y_delay = column of delay time
              y_factor = column of Delay Factor
 
     '''
     df = pd.read_csv(path)
+    df = df[:max_rows]
 
     y_delay = df['ArrDelay']
     y_factor = df['DelayFactor']
