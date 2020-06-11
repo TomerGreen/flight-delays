@@ -5,6 +5,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 from data_loader import load_data
 from sklearn.metrics import accuracy_score
+from sklearn.model_selection import GridSearchCV
 
 
 def preprocess_training_data(x, delay, y):
@@ -40,13 +41,33 @@ def evaluate_model(model, x_val, y_val):
     print(accuracy_score(y_val, y_pred))
     print(pd.crosstab(y_val, y_pred, rownames=['Actual Reasons'], colnames=['Predicted Reasons']))
 
+def get_bestF(x_train, y_train, max_rows = int(1e5)):
+    x_train, y_train = x_train[:max_rows], y_train[:max_rows]
+    classifier = RandomForestClassifier(verbose=2)
+
+    n_estimators = [100, 300, 500, 800, 1200]
+    max_depth = [5, 8, 15, 25, 30]
+    min_samples_split = [2, 5, 10, 15, 100]
+    min_samples_leaf = [1, 2, 5, 10]
+    hyperF = dict(n_estimators=n_estimators, max_depth=max_depth,
+                  min_samples_split=min_samples_split,
+                  min_samples_leaf=min_samples_leaf)
+
+    gridF = GridSearchCV(classifier, hyperF, cv=3, verbose=1,
+                         n_jobs=-1)
+    bestF = gridF.fit(x_train, y_train)
+    return bestF
 
 if __name__ == '__main__':
     print("Loading data")
     x, delay, y = load_data('flight_data/train_data.csv')
     x_train, x_val, y_train, y_val = preprocess_training_data(x, delay, y)
+
+    # classifier = train_model(x_train, y_train, max_rows=int(1e3))
+    bestF = get_bestF(x_train, y_train, max_rows=int(1e3))
+    classifier = bestF.best_estimator_
+    joblib.dump(classifier, 'classifierBestF1.pkl',compress=9)
     print('Fitting model')
-    classifier = train_model(x_train, y_train, max_rows=10000000)
-    joblib.dump(classifier, 'classifier.pkl')
+
     evaluate_model(classifier, x_val, y_val)
 
