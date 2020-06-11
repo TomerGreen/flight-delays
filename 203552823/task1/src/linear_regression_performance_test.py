@@ -61,7 +61,7 @@ def scalling(X):
     X = scaler.fit_transform(X)
     return X
 
-X, y_delay, y_factor = load_data("../train_data.csv", 5000)
+X, y_delay, y_factor = load_data("203552823/task1/src/flight_data/train_data.csv", 5000)
 X = scalling(X)
 ridge_test(X, y_delay)
 lasso_test(X, y_delay)

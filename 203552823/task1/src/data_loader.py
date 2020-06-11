@@ -149,7 +149,7 @@ def process_data_test(x, weather_data, weather_means_dict):
     """
         :params x: (m,15) dataframe with raw test data
     """
-    columns_names= joblib.load('203552823/task1/src/columns_names.pkl')
+    columns_names = joblib.load('203552823/task1/src/columns_names.pkl')
     df = preprocessing(x, weather_data, weather_means_dict)
-    df= df.reindex(columns_names, axis=1,fill_value=0)
+    df = df.reindex(columns_names, axis=1, fill_value=0)
     return df

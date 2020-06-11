@@ -20,10 +20,10 @@ def preprocess_training_data(x, delay, y):
     # TODO - add option to predict with NoDelay
     x, y = x[delay > 0], y[delay > 0]
     x_train, x_val, y_train, y_val = train_test_split(x, y, test_size=0.2, random_state=21)
-    scaler = StandardScaler()
-    x_train = scaler.fit_transform(x_train)
-    x_val = scaler.transform(x_val)
-    joblib.dump(scaler, 'classifier_scaler.pkl')
+    # scaler = StandardScaler()
+    # x_train = scaler.fit_transform(x_train)
+    # x_val = scaler.transform(x_val)
+    # joblib.dump(scaler, 'classifier_scaler.pkl')
     return x_train, x_val, y_train, y_val
 
 
@@ -61,14 +61,15 @@ def get_bestF(x_train, y_train, max_rows = int(1e5)):
 
 if __name__ == '__main__':
     print("Loading data")
-    x, delay, y = load_data('../../../flight_data/train_data.csv', '../../../all_weather_data/all_weather_data.csv',
-                            './mean_weather_dict.pkl', max_rows=1000000)
+    x, delay, y = load_data('./flight_data/train_data.csv', './weather_data/all_weather_data.csv',
+                            './mean_weather_dict.pkl', max_rows=int(5e6))
     x_train, x_val, y_train, y_val = preprocess_training_data(x, delay, y)
 
-    classifier = train_model(x_train, y_train, max_rows=int(1e3))
+    classifier = train_model(x_train, y_train, max_rows=int(2e4))
     # bestF = get_bestF(x_train, y_train, max_rows=int(1e3))
     # classifier = bestF.best_estimator_
-    # joblib.dump(classifier, 'classifierBestF1.pkl',compress=9)
+    evaluate_model(classifier, x_val, y_val)
+    joblib.dump(classifier, 'classifier.pkl', compress=9)
     print('Fitting model')
 
     evaluate_model(classifier, x_val, y_val)
